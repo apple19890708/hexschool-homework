@@ -41,32 +41,18 @@
             請先登入
           </h1>
           <div class="col-8">
-            <form id="form" class="form-signin">
+            <form class="form-signin" @submit.prevent="login">
               <div class="form-floating mb-3">
-                <input
-                  type="email"
-                  class="form-control"
-                  id="username"
-                  placeholder="name@example.com"
-                  required
-                  autofocus
-                />
+                <input type="email" v-model="user.username" class="form-control" id="username"
+                  placeholder="name@example.com" required autofocus>
                 <label for="username">Email address</label>
               </div>
-              <div class="form-floating">
-                <input
-                  type="password"
-                  class="form-control"
-                  id="password"
-                  placeholder="Password"
-                  required
-                />
+              <div class="form-floating mb-3">
+                <input type="password" v-model="user.password" class="form-control" id="password"
+                  placeholder="Password" required>
                 <label for="password">Password</label>
               </div>
-              <button
-                class="btn btn-lg btn-primary w-100 mt-3 loginBtn"
-                type="submit"
-              >
+              <button class="btn btn-lg btn-primary w-100 mt-3" type="submit">
                 登入
               </button>
             </form>
@@ -78,54 +64,36 @@
       </div>
     </div>
     <script type="module">
-      import { apiUrl, apiPath } from './config.js'
-      const userNameInput = document.querySelector('#username')
-      const passwordInput = document.querySelector('#password')
-      const form = document.querySelector('#form')
-      const loginBtn = document.querySelector('.loginBtn')
-
-      loginBtn.addEventListener('click', login)
-      async function login(event) {
-        event.preventDefault()
-        const username = userNameInput.value
-        const password = passwordInput.value
-        const data = {
-          username,
-          password,
+import { createApp } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.9/vue.esm-browser.js';
+createApp({
+  data() {
+    return {
+      user: {
+        username: '',
+        password: '',
+      },
+    };
+  },
+  methods: {
+    login() {
+      const api = 'https://vue3-course-api.hexschool.io/admin/signin';
+      axios.post(api, this.user).then((response) => {
+        if(response.data.success) {
+          const { token, expired } = response.data;
+          document.cookie = `hexToken=${token};expires=${new Date(expired)}; path=/`;
+          window.location = 'backend.html';
+        } else {
+          alert(response.data.message);
         }
-        try {
-          const res = await axios.post(`${apiUrl}/admin/signin`, data)
-          const { token, expired } = await res.data;
-          console.log('token', token)
-          document.cookie = await `hexToken=${token}; expires=${new Date(
-            expired,
-          )}`
-          window.location = './backend.html'
-        } catch (error) {
-          console.dir(error)
-        }
-      }
-      // //   以下為示範程式碼
-      // const api = '/admin/signin';
-      // const user = {
-      //     username: username.value,
-      //     password: password.value,
-      // }
-      // axios.post(api, user).then((response) => {
-      //     if(response.data.success){
-      //     const { token, expired } = response.data;
-      //     // 寫入 cookie token
-      //     // expires 設置有效時間
-      //     document.cookie = `hexToken=${token};expires=${new Date(expired)}; path=/`;
-      //     window.location = 'products.html';
-      //     } else {
-      //     alert(response.data.message);
-      //     }
-      // }).catch((error) => {
-      //     console.log(error);
-      // });
-      // }
-      // form.addEventListener('submit', login)
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+  },
+  created() {
+    
+  },
+}).mount('#app');
     </script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.9.1/axios.min.js"
