@@ -11,6 +11,7 @@
       integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
   <body>
     <div id="app">
@@ -27,6 +28,7 @@
                 分類:
               </th>
               <th>產品名稱</th>
+              <th>評價</th>
               <th width="120">
                 原價
               </th>
@@ -43,9 +45,21 @@
           </thead>
           <tbody>
             <template v-if="products.length !== 0">
-              <tr v-for="item in products" :key="item.id">
+              <tr v-for="(item, oneidx) in products" :key="item.id">
                 <td>{{ item.category }}</td>
                 <td>{{ item.title }}</td>
+                <td>
+                  <span>
+                    <i
+                      v-for="(n, idx) in maxStars"
+                      :class="getStars(item.start, idx)"
+                      :style="getStarsColor(item.start, idx)"
+                      @click="changNum(n, oneidx)"
+                    >
+                    </i>
+                  </span>
+                  {{ item.start }}
+                </td>
                 <td>
                   {{ item.origin_price }}
                 </td>
@@ -176,6 +190,7 @@
               total_pages: 1,
             },
             isNewProduct: false, 
+            maxStars: 6,
           }
         },
         components: {
@@ -184,12 +199,31 @@
           delProductModal
         },
         methods: {
+          getStars(n, idx) {
+            console.log('get stars', n, idx)
+            return {
+              "fa": true,
+              "fa-star-o": n <= idx,
+              "fa-star": n > idx,
+            }
+          },
+          getStarsColor(n, idx) {
+            return {
+              color: n <= idx ? 'darkgray' : 'orange'
+            }
+          },
+          changNum(n, oneidx) {
+            this.products[oneidx].start = n;
+            console.log(this.products);
+          },
           async getProductList() {
             try {
               const url = `${apiUrl}/api/${apiPath}/admin/products?page=${this.pagination.current_page}`
               const res = await axios.get(url)
               if (res.data.success) {
                 this.products = res.data.products;
+                this.products.forEach(item => item['start']= 0)
+                console.log(this.products);
                 this.pagination = res.data.pagination;
               }
             } catch (error) {
