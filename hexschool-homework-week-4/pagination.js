@@ -11,7 +11,7 @@ export default {
         <ul class="pagination">
           <li class="page-item" :class="{'disabled': !page.has_pre}">
             <a class="page-link" href="#" aria-label="Previous"
-              @click="passProduct(page.current_page -1)">
+              @click.prevent="passProduct(page.current_page -1)">
               <span aria-hidden="true">&laquo;</span>
             </a>
           </li>

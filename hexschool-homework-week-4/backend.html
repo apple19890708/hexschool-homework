@@ -91,7 +91,7 @@
         @delete-product="deleteProduct"></del-product-modal>
 
       <product-modal ref="productModalOutside" :temp-product="tempProduct"
-      @update-product="updateProduct"></product-modal>
+      @update-product="updateProduct" :is-new-product="isNewProduct"></product-modal>
     </div>
     <style>
       .switch {
@@ -229,6 +229,8 @@
                 alert(res.data.message);
                 this.getProductList();
                 this.$refs.productModalOutside.closeModal();
+              }else {
+                alert(res.data.message);
               };
             } catch(error) {
               console.log(error.response)

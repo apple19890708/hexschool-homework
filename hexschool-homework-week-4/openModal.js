@@ -3,6 +3,9 @@ export default {
         tempProduct: {
           type: Object,
           default: {},
+        },
+        isNewProduct: {
+          type: Boolean,
         }
       },
     template: `
@@ -12,8 +15,8 @@ export default {
         <div class="modal-content border-0">
             <div class="modal-header bg-dark text-white">
             <h5 id="productModalLabel" class="modal-title">
-                <span >新增產品</span>
-                <span >編輯產品</span>
+                <span v-if="isNewProduct" >新增產品</span>
+                <span v-if="!isNewProduct">編輯產品</span>
             </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -22,8 +25,8 @@ export default {
                 <div class="col-sm-4">
                 <div class="form-group">
                     <label for="imageUrl">主要圖片</label>
-                    <input type="text" class="form-control" placeholder="請輸入圖片連結">
-                    <img class="img-fluid" >
+                    <input type="text" class="form-control" v-model="tempProduct.imageUrl" placeholder="請輸入圖片連結">
+                    <img class="img-fluid" :src="tempProduct.imageUrl">
                 </div>
                 <div class="mb-1">多圖新增</div>
                 <div v-if="Array.isArray(tempProduct.imagesUrl)">
