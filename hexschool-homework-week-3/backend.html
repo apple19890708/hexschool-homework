@@ -110,6 +110,7 @@
                   <div class="form-group">
                     <label for="imageUrl">主要圖片</label>
                     <input
+                      id="imageUrl"
                       v-model="tempProduct.imageUrl"
                       type="text"
                       class="form-control"
@@ -187,7 +188,7 @@
                       />
                     </div>
                     <div class="form-group col-md-6">
-                      <label for="price">單位</label>
+                      <label for="unit">單位</label>
                       <input
                         id="unit"
                         v-model="tempProduct.unit"
@@ -237,7 +238,7 @@
                   <div class="form-group">
                     <label for="content">說明內容</label>
                     <textarea
-                      id="description"
+                      id="content"
                       v-model="tempProduct.content"
                       type="text"
                       class="form-control"
@@ -427,12 +428,12 @@
                 this.productModal.show();
                 break;
               case 'edit':
-                this.tempProduct = { ...item };
+                this.tempProduct = JSON.parse(JSON.stringify(item));
                 this.isNewProduct = false;
                 this.productModal.show();
                 break;
               case 'delete':
-                this.tempProduct = { ...item };
+                this.tempProduct = JSON.parse(JSON.stringify(item));
                 this.delProductModal.show()
               break;
             }  
@@ -450,7 +451,9 @@
                 alert(res.data.message);
                 this.getProductList();
                 this.productModal.hide();
-              };
+              } else {
+                alert(res.data.message);
+              }
             } catch(error) {
               console.log(error.response)
             };
