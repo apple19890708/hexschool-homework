@@ -89,7 +89,7 @@
         </table>
         <!-- 購物車列表 -->
         <div class="text-end">
-          <button class="btn btn-outline-danger" type="button">
+          <button class="btn btn-outline-danger" type="button" @click="delAllCarts">
             清空購物車
           </button>
         </div>
@@ -107,8 +107,16 @@
               <!-- 判斷 購物車內是否有資料 -->
               <tr v-for="item in cart.carts" :key="item.id">
                 <td>
-                  <button type="button" class="btn btn-outline-danger btn-sm">
-                    <i class="fas fa-spinner fa-pulse"></i>
+                  <button 
+                    type="button"
+                    class="btn btn-outline-danger btn-sm"
+                    @click="removeCartItem(item.id)"
+                    :disabled="loadingStatus.loadingItem === item.id"
+                  >
+                    <i 
+                      class="fas fa-spinner fa-pulse"
+                      v-if="loadingStatus.loadingItem === item.id"
+                    ></i>
                     x
                   </button>
                 </td>
@@ -186,6 +194,42 @@
               ></v-field>
               <error-message
                 name="姓名"
+                class="invalid-feedback"
+              ></error-message>
+            </div>
+
+            <div class="mb-3">
+              <label for="tel">電話</label>
+              <v-field
+                id="tel"
+                name="電話"
+                type="text"
+                class="form-control"
+                :class="{ 'is-invalid': errors['電話'] }"
+                placeholder="請輸入電話"
+                rules="required"
+                v-model="form.user.tel"
+              ></v-field>
+              <error-message
+                name="電話"
+                class="invalid-feedback"
+              ></error-message>
+            </div>
+
+            <div class="mb-3">
+              <label for="address">地址</label>
+              <v-field
+                id="address"
+                name="地址"
+                type="text"
+                class="form-control"
+                :class="{ 'is-invalid': errors['地址'] }"
+                placeholder="請輸入地址"
+                rules="required"
+                v-model="form.user.address"
+              ></v-field>
+              <error-message
+                name="地址"
                 class="invalid-feedback"
               ></error-message>
             </div>
@@ -278,12 +322,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@vee-validate/i18n@4.1.17/dist/vee-validate-i18n.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@vee-validate/rules@4.1.17/dist/vee-validate-rules.min.js"></script>
     <script type="module">
-      import { createApp } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.9/vue.esm-browser.js'
+      // import { createApp } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.9/vue.esm-browser.js'
       import { apiUrl, apiPath } from './config.js'
       import pagination from './pagination.js'
       import userProductModal from './userProductModal.js'
 
-      const app = createApp({
+      const app = Vue.createApp({
         data() {
           return {
             loadingStatus: {
@@ -398,6 +442,41 @@
                 this.getCart()
               }
             })
+          },
+          onSubmit() {
+            const url = `${apiUrl}/api/${apiPath}/order`;
+            const order = this.form;
+            axios.post(url, { data: order })
+              .then((response) => {
+                if (response.data.success) {
+                  this.$refs.form.resetForm();
+                  this.getCart();
+                } else {
+                  alert(response.data.message)
+                }
+              });
+          },
+          delAllCarts() {
+            const url = `${apiUrl}/api/${apiPath}/carts`;
+            axios.delete(url).then((response) => {
+              if (response.data.success) {
+                this.getCart();
+              } else {
+                alert(response.data.message);
+              }
+            });
+          },
+          removeCartItem(id) {
+            const url = `${apiUrl}/api/${apiPath}/cart/${id}`;
+            this.loadingStatus.loadingItem = id;
+            axios.delete(url).then((response) => {
+              if (response.data.success) {
+                this.loadingStatus.loadingItem = '';
+                this.getCart();
+              } else {
+                alert(response.data.message);
+              }
+            });
           },
         },
         created() {
